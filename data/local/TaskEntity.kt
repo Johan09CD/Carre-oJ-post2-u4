@@ -9,5 +9,6 @@ data class TaskEntity(
     val title: String,
     val description: String,
     val isCompleted: Boolean = false,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val priority: Int = 1 // NUEVO: 1 baja, 2 media, 3 alta [cite: 202]
 )

@@ -5,7 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [TaskEntity::class], version = 1, exportSchema = true)
+// 1. Incrementamos la versión a 2 [cite: 232]
+@Database(entities = [TaskEntity::class], version = 2, exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 
@@ -18,7 +19,10 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "taskmanager.db"
-                ).build().also { INSTANCE = it }
+                )
+                    .addMigrations(MIGRATION_1_2) // 2. Registramos la migración aquí [cite: 242]
+                    .build()
+                    .also { INSTANCE = it }
             }
     }
 }

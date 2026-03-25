@@ -1,25 +1,26 @@
-Task Manager - Unidad 4: Modelado de Datos y Persistencia Local
-Este proyecto consiste en una aplicación de gestión de tareas desarrollada en Kotlin. El objetivo principal es implementar la persistencia de datos mediante Room Database y aplicar la Migration API para evolucionar el esquema de la base de datos de la versión 1 a la versión 2 sin pérdida de información.
+Task Manager - Unidad 4: Caching con TTL y Arquitectura Offline-First
+Este proyecto implementa un sistema de gestión de posts utilizando una estrategia de Caché con TTL (Time To Live) y arquitectura offline-first. La aplicación garantiza que el usuario siempre vea información (fuente local) y sincroniza los cambios con la API de JSONPlaceholder de manera asincrónica.
 
-Arquitectura del Proyecto
-La aplicación implementa el patrón de diseño MVVM (Model-View-ViewModel) y está organizada en los siguientes paquetes:
+Arquitectura Implementada:
+El proyecto sigue el patrón MVVM y utiliza el Repository como fuente única de verdad (Single Source of Truth):
 
-data/local: Contiene los componentes centrales de Room: TaskEntity, TaskDao, AppDatabase y el archivo de migraciones Migrations.kt.
+Capa de Datos Local (Room): Almacena los posts y su estado de sincronización.
 
-data: Contiene el TaskRepository, que gestiona las operaciones de datos entre el DAO y la interfaz de usuario.
+Capa de Datos Remota (Retrofit): Se conecta con la API pública para obtener y actualizar datos.
 
-ui: Contiene el TaskViewModel, encargado de exponer los datos mediante StateFlow, y la MainActivity.
+Repository: Gestiona la lógica de decisión: si el caché tiene menos de 5 minutos, sirve datos de Room; de lo contrario, refresca desde la red.
 
-Proceso de Migración (V1 a V2)
-Se realizó una migración para añadir un sistema de prioridades a las tareas:
+WorkManager: Garantiza que las operaciones de "favoritos" realizadas sin conexión se suban a la API cuando se recupere la conectividad.
 
-Versión 1: Esquema inicial con campos para ID, título, descripción, estado de completado y fecha de creación.
+Lógica de Sincronización
+TTL (Time To Live): Se implementó un tiempo de vida del caché de 5 minutos (300,000 ms). Si el usuario abre la aplicación dentro de este rango, no se realizan peticiones de red innecesarias.
 
-Versión 2: Se actualizó la entidad para incluir el campo priority (Integer), representando niveles: 1 (baja), 2 (media) y 3 (alta).
+Offline-First: La UI observa un Flow proveniente de Room. Cualquier cambio de la red actualiza la base de datos y la UI reacciona automáticamente.
 
-Migration API: Se implementó el objeto MIGRATION_1_2 utilizando una sentencia SQL ALTER TABLE para agregar la nueva columna con un valor predeterminado de 1.
+Sincronización Garantizada: Al marcar un post como favorito, se usa SyncFavoritesWorker con restricciones de red (NetworkType.CONNECTED) y políticas de reintento exponencial.
 
-Johan Steven Carreño Daza
-Ingeniería de Sistemas - Sexto Semestre
+Johan Steven Carreño Daza Ingeniería de Sistemas - Sexto Semestre
+
 Universidad de Santander (UDES)
+
 Cúcuta, Colombia
